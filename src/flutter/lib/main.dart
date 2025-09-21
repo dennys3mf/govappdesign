@@ -5,6 +5,7 @@ import 'screens/home_screen.dart';
 import 'screens/inspection_form_screen.dart';
 import 'screens/printer_screen.dart';
 import 'screens/history_screen.dart';
+import 'screens/admin_dashboard_screen.dart';
 import 'theme/app_theme.dart';
 
 void main() async {
@@ -29,6 +30,8 @@ class ClarityGovApp extends StatelessWidget {
   }
 }
 
+enum UserRole { inspector, gerente }
+
 class AppNavigator extends StatefulWidget {
   const AppNavigator({super.key});
 
@@ -38,12 +41,17 @@ class AppNavigator extends StatefulWidget {
 
 class _AppNavigatorState extends State<AppNavigator> {
   String _currentScreen = 'login';
-  Map<String, String>? _user;
+  Map<String, dynamic>? _user;
 
-  void _handleLogin() {
+  void _handleLogin(UserRole role) {
     setState(() {
-      _user = {'name': 'Inspector Municipal'};
-      _currentScreen = 'home';
+      if (role == UserRole.gerente) {
+        _user = {'name': 'Gerente Municipal', 'role': role};
+        _currentScreen = 'admin';
+      } else {
+        _user = {'name': 'Inspector Municipal', 'role': role};
+        _currentScreen = 'home';
+      }
     });
   }
 
@@ -66,15 +74,26 @@ class _AppNavigatorState extends State<AppNavigator> {
         case 'history':
           _currentScreen = 'history';
           break;
+        case 'admin':
+          _currentScreen = 'admin';
+          break;
         default:
-          _currentScreen = 'home';
+          if (_user?['role'] == UserRole.gerente) {
+            _currentScreen = 'admin';
+          } else {
+            _currentScreen = 'home';
+          }
       }
     });
   }
 
   void _goBack() {
     setState(() {
-      _currentScreen = 'home';
+      if (_user?['role'] == UserRole.gerente) {
+        _currentScreen = 'admin';
+      } else {
+        _currentScreen = 'home';
+      }
     });
   }
 
@@ -94,6 +113,11 @@ class _AppNavigatorState extends State<AppNavigator> {
         return PrinterScreen(onBack: _goBack);
       case 'history':
         return HistoryScreen(onBack: _goBack);
+      case 'admin':
+        return AdminDashboardScreen(
+          onLogout: _handleLogout,
+          userName: _user?['name'],
+        );
       default:
         return LoginScreen(onLogin: _handleLogin);
     }

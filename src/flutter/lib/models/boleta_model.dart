@@ -4,15 +4,15 @@ class BoletaModel {
   final String empresa;
   final String conductor;
   final String numeroLicencia;
-  final String codigoFiscalizador;
+  final String fiscalizador; // Cambiado para coincidir con React
   final String motivo;
   final String conforme;
   final String? descripciones;
   final String? observaciones;
   final DateTime fecha;
-  final String inspectorId;
-  final String? inspectorEmail;
-  final String? licensePhotoPath;
+  final String? fotoLicencia; // Cambiado para coincidir con React
+  final double? multa; // Agregado para multas
+  final String estado; // Agregado para estado de boleta
 
   BoletaModel({
     required this.id,
@@ -20,15 +20,15 @@ class BoletaModel {
     required this.empresa,
     required this.conductor,
     required this.numeroLicencia,
-    required this.codigoFiscalizador,
+    required this.fiscalizador,
     required this.motivo,
     required this.conforme,
     this.descripciones,
     this.observaciones,
     required this.fecha,
-    required this.inspectorId,
-    this.inspectorEmail,
-    this.licensePhotoPath,
+    this.fotoLicencia,
+    this.multa,
+    required this.estado,
   });
 
   Map<String, dynamic> toMap() {
@@ -38,15 +38,15 @@ class BoletaModel {
       'empresa': empresa,
       'conductor': conductor,
       'numeroLicencia': numeroLicencia,
-      'codigoFiscalizador': codigoFiscalizador,
+      'fiscalizador': fiscalizador,
       'motivo': motivo,
       'conforme': conforme,
       'descripciones': descripciones,
       'observaciones': observaciones,
       'fecha': fecha.toIso8601String(),
-      'inspectorId': inspectorId,
-      'inspectorEmail': inspectorEmail,
-      'licensePhotoPath': licensePhotoPath,
+      'fotoLicencia': fotoLicencia,
+      'multa': multa,
+      'estado': estado,
     };
   }
 
@@ -57,15 +57,15 @@ class BoletaModel {
       empresa: map['empresa'] ?? '',
       conductor: map['conductor'] ?? '',
       numeroLicencia: map['numeroLicencia'] ?? '',
-      codigoFiscalizador: map['codigoFiscalizador'] ?? '',
+      fiscalizador: map['fiscalizador'] ?? map['codigoFiscalizador'] ?? '', // Compatibilidad con versión anterior
       motivo: map['motivo'] ?? '',
       conforme: map['conforme'] ?? 'No',
       descripciones: map['descripciones'],
       observaciones: map['observaciones'],
       fecha: DateTime.parse(map['fecha']),
-      inspectorId: map['inspectorId'] ?? '',
-      inspectorEmail: map['inspectorEmail'],
-      licensePhotoPath: map['licensePhotoPath'],
+      fotoLicencia: map['fotoLicencia'] ?? map['licensePhotoPath'], // Compatibilidad con versión anterior
+      multa: map['multa']?.toDouble(),
+      estado: map['estado'] ?? 'Activa',
     );
   }
 
@@ -75,15 +75,15 @@ class BoletaModel {
     String? empresa,
     String? conductor,
     String? numeroLicencia,
-    String? codigoFiscalizador,
+    String? fiscalizador,
     String? motivo,
     String? conforme,
     String? descripciones,
     String? observaciones,
     DateTime? fecha,
-    String? inspectorId,
-    String? inspectorEmail,
-    String? licensePhotoPath,
+    String? fotoLicencia,
+    double? multa,
+    String? estado,
   }) {
     return BoletaModel(
       id: id ?? this.id,
@@ -91,15 +91,20 @@ class BoletaModel {
       empresa: empresa ?? this.empresa,
       conductor: conductor ?? this.conductor,
       numeroLicencia: numeroLicencia ?? this.numeroLicencia,
-      codigoFiscalizador: codigoFiscalizador ?? this.codigoFiscalizador,
+      fiscalizador: fiscalizador ?? this.fiscalizador,
       motivo: motivo ?? this.motivo,
       conforme: conforme ?? this.conforme,
       descripciones: descripciones ?? this.descripciones,
       observaciones: observaciones ?? this.observaciones,
       fecha: fecha ?? this.fecha,
-      inspectorId: inspectorId ?? this.inspectorId,
-      inspectorEmail: inspectorEmail ?? this.inspectorEmail,
-      licensePhotoPath: licensePhotoPath ?? this.licensePhotoPath,
+      fotoLicencia: fotoLicencia ?? this.fotoLicencia,
+      multa: multa ?? this.multa,
+      estado: estado ?? this.estado,
     );
   }
+
+  // Getters para compatibilidad con código anterior
+  String get codigoFiscalizador => fiscalizador;
+  String? get licensePhotoPath => fotoLicencia;
+  String get inspectorId => fiscalizador;
 }

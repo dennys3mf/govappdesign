@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../main.dart';
 
 class LoginScreen extends StatefulWidget {
-  final VoidCallback onLogin;
+  final Function(UserRole) onLogin;
 
   const LoginScreen({super.key, required this.onLogin});
 
@@ -15,6 +16,7 @@ class _LoginScreenState extends State<LoginScreen>
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
+  UserRole _selectedRole = UserRole.inspector;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -68,7 +70,113 @@ class _LoginScreenState extends State<LoginScreen>
       _isLoading = false;
     });
 
-    widget.onLogin();
+    widget.onLogin(_selectedRole);
+  }
+
+  Widget _buildRoleSelector() {
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: AppTheme.mutedGray.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: GestureDetector(
+              onTap: () => setState(() => _selectedRole = UserRole.inspector),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: _selectedRole == UserRole.inspector
+                      ? Colors.white
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: _selectedRole == UserRole.inspector
+                      ? [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.badge,
+                      size: 20,
+                      color: _selectedRole == UserRole.inspector
+                          ? AppTheme.primaryRed
+                          : AppTheme.mutedForeground,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Inspector de Campo',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: _selectedRole == UserRole.inspector
+                            ? AppTheme.primaryRed
+                            : AppTheme.mutedForeground,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: GestureDetector(
+              onTap: () => setState(() => _selectedRole = UserRole.gerente),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: _selectedRole == UserRole.gerente
+                      ? Colors.white
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: _selectedRole == UserRole.gerente
+                      ? [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.admin_panel_settings,
+                      size: 20,
+                      color: _selectedRole == UserRole.gerente
+                          ? AppTheme.primaryRed
+                          : AppTheme.mutedForeground,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Gerente/Admin',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: _selectedRole == UserRole.gerente
+                            ? AppTheme.primaryRed
+                            : AppTheme.mutedForeground,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -135,12 +243,30 @@ class _LoginScreenState extends State<LoginScreen>
                           ),
                           const SizedBox(height: 32),
 
+                          // Selector de rol
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Tipo de Usuario',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppTheme.foregroundDark,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              _buildRoleSelector(),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+
                           // Campos de entrada
                           TextField(
                             controller: _emailController,
                             decoration: const InputDecoration(
                               labelText: 'Correo Electrónico',
-                              hintText: 'inspector@lajoya.gob.pe',
+                              hintText: 'usuario@lajoya.gob.pe',
                               prefixIcon: Icon(Icons.email_outlined),
                             ),
                             keyboardType: TextInputType.emailAddress,
@@ -175,7 +301,11 @@ class _LoginScreenState extends State<LoginScreen>
                                         strokeWidth: 2,
                                       ),
                                     )
-                                  : const Text('Iniciar Sesión'),
+                                  : Text(
+                                      _selectedRole == UserRole.inspector
+                                          ? 'Acceder como Inspector'
+                                          : 'Acceder como Gerente',
+                                    ),
                             ),
                           ),
                           const SizedBox(height: 16),
@@ -186,6 +316,59 @@ class _LoginScreenState extends State<LoginScreen>
                               // Funcionalidad de recuperar contraseña
                             },
                             child: const Text('¿Olvidaste tu contraseña?'),
+                          ),
+                          
+                          const SizedBox(height: 16),
+                          
+                          // Información del rol seleccionado
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: AppTheme.primaryRed.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: AppTheme.primaryRed.withOpacity(0.3),
+                                width: 1,
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      _selectedRole == UserRole.inspector
+                                          ? Icons.badge
+                                          : Icons.admin_panel_settings,
+                                      size: 20,
+                                      color: AppTheme.primaryRed,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      _selectedRole == UserRole.inspector
+                                          ? 'Inspector de Campo'
+                                          : 'Gerente/Administrador',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppTheme.primaryRed,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  _selectedRole == UserRole.inspector
+                                      ? 'Acceso a fiscalización móvil, captura de fotos, generación de boletas e impresión en campo.'
+                                      : 'Panel administrativo completo con CRUD de boletas, gestión de inspectores, galería de fotos y reportes ejecutivos.',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: AppTheme.mutedForeground,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
